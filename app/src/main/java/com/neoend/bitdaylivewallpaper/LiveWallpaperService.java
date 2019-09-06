@@ -1,4 +1,4 @@
-package com.bewareofraj.wallpaper.bitdaylivewallpaper;
+package com.neoend.bitdaylivewallpaper;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,6 +15,7 @@ import android.graphics.Paint;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.util.Calendar;
@@ -27,6 +28,8 @@ public class LiveWallpaperService extends WallpaperService {
     }
 
     public class BitDayLiveEngine extends Engine {
+
+        private static final String TAG = "BitDayLiveEngine";
 
         private final Handler handler = new Handler();
         private BroadcastReceiver receiver = null;
@@ -43,7 +46,7 @@ public class LiveWallpaperService extends WallpaperService {
 
         @Override
         public void onVisibilityChanged(boolean visible) {
-
+            Log.d(TAG, "onVisibilityChanged()");
             if (visible) {
                 handler.post(drawRunner);
                 IntentFilter filter = new IntentFilter(Intent.ACTION_TIME_TICK);
@@ -125,30 +128,41 @@ public class LiveWallpaperService extends WallpaperService {
         }
 
         private int getBackgroundForHour(int hour) {
-            if (hour >= 23 || hour <= 2)
+            if (hour >= 0 && hour <= 630)
                 return R.drawable.wall11_late_night;
-            else if (hour >= 22)
+            else if (hour >= 2300)
                 return R.drawable.wall10_mid_night;
-            else if (hour >= 21)
+            else if (hour >= 1900)
                 return R.drawable.wall9_early_night;
-            else if (hour >= 19)
+            else if (hour >= 1830)
                 return R.drawable.wall8_late_evening;
-            else if (hour >= 16)
+            else if (hour >= 1800)
                 return R.drawable.wall7_mid_evening;
-            else if (hour >= 15)
+            else if (hour >= 1600)
                 return R.drawable.wall6_early_evening;
-            else if (hour >= 13)
+            else if (hour >= 1400)
                 return R.drawable.wall5_late_afternoon;
-            else if (hour >= 12)
+            else if (hour >= 1200)
                 return R.drawable.wall4_mid_afternoon;
-            else if (hour >= 10)
+            else if (hour >= 1000)
                 return R.drawable.wall3_early_afternoon;
-            else if (hour >= 7)
+            else if (hour >= 730)
                 return R.drawable.wall2_late_morning;
-            else if (hour >= 5)
+            else if (hour >= 700)
                 return R.drawable.wall1_mid_morning;
-            else
+            else if (hour > 630)
                 return R.drawable.wall0_early_morning;
+            else
+                return R.drawable.wall2_late_morning;
+        }
+
+        public int getHourMinute() {
+            Calendar calendar = Calendar.getInstance();
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int min = calendar.get(Calendar.MINUTE);
+            String time = String.format("%d%02d", hour, min);
+            Log.d(TAG, "time : " + time);
+            return Integer.parseInt(time);
         }
 
         public Bitmap getBackground(Resources resources) {
@@ -157,7 +171,8 @@ public class LiveWallpaperService extends WallpaperService {
             int
                     currentWidth = metrics.widthPixels,
                     currentHeight = metrics.heightPixels,
-                    currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+                    currentHour = getHourMinute();
+                    //currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
             if (lastHour != currentHour) {
                 int id = getBackgroundForHour(currentHour);
